@@ -13,5 +13,9 @@ class Logout : Command(
     override fun toString(): String {
         return "Logout(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
+
+    override fun execute() {
+        TODO("Not yet implemented")
+    }
 }
 

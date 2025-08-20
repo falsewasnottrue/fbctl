@@ -11,4 +11,6 @@ abstract class Command(
     override fun toString(): String {
         return "Command(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
+
+    abstract fun execute()
 }

@@ -1,6 +1,7 @@
 package de.falsewasnottrue
 
 import de.falsewasnottrue.auth.Auth
+import de.falsewasnottrue.auth.Login
 
 fun main() {
     val commandGroups = listOf<CommandGroup>(
@@ -18,4 +19,6 @@ fun main() {
             }
         }
     }
+
+    Login().execute();
 }
