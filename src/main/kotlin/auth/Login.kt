@@ -1,12 +1,28 @@
 package de.falsewasnottrue.auth
 
 import de.falsewasnottrue.Command
+import de.falsewasnottrue.OperationOutcome
+import de.falsewasnottrue.WebAPI
 import de.falsewasnottrue.auth.model.SessionInfo
 import de.falsewasnottrue.auth.model.Challenge
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+
+class LoginFailed : OperationOutcome(
+    operationName = "login",
+    success = false,
+    message = "Login failed. Please check your credentials and try again.",
+    data = mapOf("error" to "Invalid credentials")
+)
+
+class LoginSuccesful(sid: String): OperationOutcome(
+    operationName = "login",
+    success = true,
+    message = "Login successful.",
+    data = mapOf("sid" to sid)
+)
 
 class Login : Command(
     name = "login",
@@ -20,14 +36,14 @@ class Login : Command(
         return "Login(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
 
-    override fun execute() {
+    override fun execute(params: Map<String, String>?): OperationOutcome {
         // get username and password from env variables
-        val username: String = System.getenv("FB_USERNAME") ?: "un"
+        val username: String = System.getenv("FB_USERNAME")!!
         val password: String = System.getenv("FB_PASSWORD")!!
 
-        // TODO get Challenge from server
+        // get Challenge from server
         val serverUrl = "http://fritz.box/login_sid.lua?version=2"
-        val sessionInfoString = getResource(serverUrl)
+        val sessionInfoString = WebAPI.get(serverUrl)
         val challengeString = SessionInfo.parse(sessionInfoString)?.challenge!!
         val challenge = Challenge.parse(challengeString)!!
 
@@ -37,29 +53,16 @@ class Login : Command(
         val challengeResponse = challenge.calculateResponse(password)
         println("Challenge response: $challengeResponse")
 
-        // TODO post response to server
-        val response2 = postResource(serverUrl, mapOf("username" to username, "response" to challengeResponse))
-        println("Response2: $response2")
+        // post response to server
+        val responseParams = mapOf("username" to username, "response" to challengeResponse)
+        val sessionInfoString2 = WebAPI.post(serverUrl, responseParams)
 
-        // TODO get SessionID from server
-        // TODO store SessionID in env variable
-    }
-
-    private fun getResource(url: String): String {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        return connection.inputStream.bufferedReader().use { it.readText() }
-    }
-
-    fun postResource(url: String, params: Map<String, String>): String {
-        val body = params.entries.joinToString("&") {
-            "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value, "UTF-8")}"
+        // get SessionID from server
+        val sid = SessionInfo.parse(sessionInfoString2)?.sid!!
+        if ("0000000000000000" == sid) {
+            return LoginFailed()
         }
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.doOutput = true
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        OutputStreamWriter(connection.outputStream).use { it.write(body) }
-        return connection.inputStream.bufferedReader().use { it.readText() }
+
+        return LoginSuccesful(sid)
     }
 }

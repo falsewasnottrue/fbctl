@@ -1,6 +1,7 @@
 package de.falsewasnottrue.auth
 
 import de.falsewasnottrue.Command
+import de.falsewasnottrue.OperationOutcome
 
 class Logout : Command(
     name = "logout",
@@ -14,7 +15,7 @@ class Logout : Command(
         return "Logout(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
 
-    override fun execute() {
+    override fun execute(params: Map<String, String>?): OperationOutcome {
         TODO("Not yet implemented")
     }
 }

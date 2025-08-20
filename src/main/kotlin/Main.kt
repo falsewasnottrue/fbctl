@@ -1,6 +1,7 @@
 package de.falsewasnottrue
 
 import de.falsewasnottrue.auth.Auth
+import de.falsewasnottrue.auth.CheckSessionValid
 import de.falsewasnottrue.auth.Login
 
 fun main() {
@@ -20,5 +21,11 @@ fun main() {
         }
     }
 
-    Login().execute();
+    val result = Login().execute(null)
+    println("Login Result: ${result.message} (Success: ${result.success})")
+    val sid = result.data?.get("sid") ?: "No session ID found in result data."
+    println("SID: $sid")
+
+    val result2 = CheckSessionValid().execute(mapOf("sid" to sid))
+    println("Check Result: ${result2.message} (Success: ${result.success})")
 }

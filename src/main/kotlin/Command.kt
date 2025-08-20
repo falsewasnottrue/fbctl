@@ -12,5 +12,5 @@ abstract class Command(
         return "Command(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
 
-    abstract fun execute()
+    abstract fun execute(params: Map<String, String>?): OperationOutcome
 }
