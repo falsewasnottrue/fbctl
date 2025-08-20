@@ -3,6 +3,7 @@ package de.falsewasnottrue
 import de.falsewasnottrue.auth.Auth
 import de.falsewasnottrue.auth.CheckSessionValid
 import de.falsewasnottrue.auth.Login
+import de.falsewasnottrue.auth.Logout
 
 fun main() {
     val commandGroups = listOf<CommandGroup>(
@@ -21,11 +22,19 @@ fun main() {
         }
     }
 
-    val result = Login().execute(null)
-    println("Login Result: ${result.message} (Success: ${result.success})")
-    val sid = result.data?.get("sid") ?: "No session ID found in result data."
+    val result1 = Login().execute(null)
+    println("Login Result: ${result1.message} (Success: ${result1.success})")
+
+    val sid = result1.data?.get("sid") ?: "No session ID found in result data."
     println("SID: $sid")
 
     val result2 = CheckSessionValid().execute(mapOf("sid" to sid))
-    println("Check Result: ${result2.message} (Success: ${result.success})")
+    println("Check Result: ${result2.message} (Success: ${result2.success})")
+
+    val result3 = Logout().execute(mapOf("sid" to sid))
+    println("Logout Result: ${result3.message} (Success: ${result3.success})")
+
+    val result4 = CheckSessionValid().execute(mapOf("sid" to sid))
+    println("Check Result: ${result4.message} (Success: ${result4.success})")
+
 }

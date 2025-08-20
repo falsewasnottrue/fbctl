@@ -32,6 +32,8 @@ class Login : Command(
     group = "auth",
     aliases = listOf("signin", "sign-in")
 ) {
+    val serverUrl = "http://fritz.box/login_sid.lua?version=2"
+
     override fun toString(): String {
         return "Login(name='$name', description='$description', parameters=$parameters, example='$example', group='$group', aliases=$aliases)"
     }
@@ -42,16 +44,12 @@ class Login : Command(
         val password: String = System.getenv("FB_PASSWORD")!!
 
         // get Challenge from server
-        val serverUrl = "http://fritz.box/login_sid.lua?version=2"
         val sessionInfoString = WebAPI.get(serverUrl)
         val challengeString = SessionInfo.parse(sessionInfoString)?.challenge!!
         val challenge = Challenge.parse(challengeString)!!
 
-        println("Challenge: $challenge")
-
         // calculate response
         val challengeResponse = challenge.calculateResponse(password)
-        println("Challenge response: $challengeResponse")
 
         // post response to server
         val responseParams = mapOf("username" to username, "response" to challengeResponse)

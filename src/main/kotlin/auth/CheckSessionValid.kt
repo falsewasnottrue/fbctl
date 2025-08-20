@@ -27,14 +27,14 @@ class CheckSessionValid : Command(
     group = "auth",
     aliases = listOf("session-check", "validate-session")
 ) {
+    val serverUrl = "http://fritz.box/login_sid.lua?version=2"
+
     override fun execute(params: Map<String, String>?): OperationOutcome {
         val sid = params?.get("sid") ?: return SessionInvalid()
-
-        val serverUrl = "http://fritz.box/login_sid.lua?version=2"
-        val sessionInfoString2 = WebAPI.post(serverUrl, mapOf("sid" to sid))
+        val sessionInfoString = WebAPI.post(serverUrl, mapOf("sid" to sid))
 
         // get SessionID from server
-        val newSid = SessionInfo.parse(sessionInfoString2)?.sid!!
+        val newSid = SessionInfo.parse(sessionInfoString)?.sid!!
         if ("0000000000000000" == newSid) {
             return SessionInvalid()
         }
